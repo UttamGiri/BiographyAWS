@@ -5,24 +5,24 @@ import java.util.Map;
 
 import com.google.gson.Gson;
 
-public class HttpProductResponse {
+public class HttpPersonResponse {
 	
 	private String body;
 	private String statusCode = "200";
 	private Map<String, String> headers = new HashMap<String, String>();
 	
-	public HttpProductResponse() {
+	public HttpPersonResponse() {
 		super();
         this.headers.put("Content-Type","application/json");
 	}
 
-	public HttpProductResponse(Person person) {
+	public HttpPersonResponse(Person person) {
         this();
         Gson gson = new Gson(); 
         this.body = gson.toJson(person);
     }
 	
-	public HttpProductResponse(Person [] persons) {
+	public HttpPersonResponse(Person [] persons) {
 		this();
 		Gson gson = new Gson();
 		this.body = gson.toJson(persons);

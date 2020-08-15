@@ -11,36 +11,71 @@ import com.amazonaws.services.dynamodbv2.document.ScanOutcome;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
-import com.biography.aws.functions.HttpProductResponse;
+import com.biography.aws.functions.HttpPersonResponse;
 import com.biography.aws.functions.HttpQuerystringRequest;
 import com.biography.aws.functions.InventoryS3Client;
 import com.biography.aws.functions.Person;
+import com.google.gson.Gson;
 
-public class BiographyDynamodbFindFunction extends DynamoDBClient implements RequestHandler<HttpQuerystringRequest, HttpProductResponse> {
+public class BiographyDynamodbFindFunction extends DynamoDBClient implements RequestHandler<HttpQuerystringRequest, HttpPersonResponse> {
 
     @Override
-    public HttpProductResponse handleRequest(HttpQuerystringRequest request, Context context) {
-        context.getLogger().log("Input: " + request);
+    public HttpPersonResponse handleRequest(HttpQuerystringRequest request, Context context) {
+
         
-        String idAsString = (String)request.getQueryStringParameters().get("id");  
+        String idAsString = (String)request.getQueryStringParameters().get("id") ;  
         
         if(idAsString.equalsIgnoreCase("all")) {  
         	Person[] products = null;
-        	HttpProductResponse response = new HttpProductResponse(products);
-        	
+        	HttpPersonResponse response = new HttpPersonResponse(products);
+        	 
     		return response;
         }
-        Integer productId = Integer.parseInt(idAsString);  
-        
-        PersonDB personDB = savePerson();
+        Integer personId = Integer.parseInt(idAsString);  
+	        
+	   	 PersonDB personDB = getPersonById(personId);
+	     
+	     Person person = new Person();
+	     person.setId(personDB.getId());
+	     person.setAddress(personDB.getAddress());
+	     person.setName(personDB.getName());
+	     person.setAge(personDB.getAge());
+	     
+			Gson gson = new Gson(); 
+	     String jsonString = gson.toJson(person);
+
+     
+        context.getLogger().log("BIOGRAPHY_LAMBDA FIND FROM DYNAMO: " + "response>>>" + jsonString);
             
-        return null;
+        HttpPersonResponse httpProductResponse = new HttpPersonResponse(person);
+       
+   
+        httpProductResponse.getHeaders().put("Access-Control-Allow-Origin", "*"); 
+        httpProductResponse.getHeaders().put("Access-Control-Allow-Headers", "Content-Type"); 
+        httpProductResponse.getHeaders().put("Access-Control-Allow-Methods", "GET"); 
+      
+        // cors header, you can add another header fields
+        
+        return httpProductResponse;
     }
     
     private PersonDB getPersonById(int personId) {
     	DynamoDBClient client = new DynamoDBClient();
-    	PersonDB person = client.getPerson(personId);
-		return person;
+    	PersonDB personDB = client.getPerson(personId);
+    	
+         
+         Person person = new Person();
+         person.setId(personDB.getId());
+         person.setAddress(personDB.getAddress());
+         person.setName(personDB.getName());
+         person.setAge(personDB.getAge());
+         
+ 		Gson gson = new Gson(); 
+         String jsonString = gson.toJson(person);
+         System.out.println(jsonString);
+         
+      //   context.getLogger().log("BIOGRAPHY_LAMBDA FIND FROM DYNAMO: " + "response>>>" + jsonString);
+		return personDB;
 
 	}
     
@@ -125,7 +160,7 @@ public class BiographyDynamodbFindFunction extends DynamoDBClient implements Req
     	
     	// biographyDynamodbFindFunction.getPersonByAgeAndAddress(1, "florida");
     	
-    	biographyDynamodbFindFunction.getPersonByAgeAndAddressScan(100, "fl");
+    	biographyDynamodbFindFunction.getPersonById(1);
 
     }
 }

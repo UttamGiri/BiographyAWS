@@ -7,10 +7,10 @@ import com.amazonaws.services.lambda.runtime.RequestHandler;
 
 public class BiogrpahyDeleteFunction 
 extends InventoryS3Client
-implements RequestHandler<HttpRequest, HttpProductResponse> {
+implements RequestHandler<HttpRequest, HttpPersonResponse> {
 
     @Override
-    public HttpProductResponse handleRequest(HttpRequest request, Context context) {
+    public HttpPersonResponse handleRequest(HttpRequest request, Context context) {
         context.getLogger().log("Input: " + request);
 
         String idAsString = (String)request.pathParameters.get("id");
@@ -22,10 +22,10 @@ implements RequestHandler<HttpRequest, HttpProductResponse> {
         
         if(didRemove) {
         	if(updateAllPersons(personList)) {
-        		return new HttpProductResponse();
+        		return new HttpPersonResponse();
         	}
         }
-        HttpProductResponse response = new HttpProductResponse();
+        HttpPersonResponse response = new HttpPersonResponse();
         response.setStatusCode("404");
 		return response;
 

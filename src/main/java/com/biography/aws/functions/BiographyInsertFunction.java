@@ -8,13 +8,14 @@ import com.google.gson.Gson;
 
 public class BiographyInsertFunction 
 extends InventoryS3Client
-implements RequestHandler<HttpRequest, HttpProductResponse> {
+implements RequestHandler<HttpRequest, HttpPersonResponse> {
 
     @Override
-    public HttpProductResponse handleRequest(HttpRequest request, Context context) {
+    public HttpPersonResponse handleRequest(HttpRequest request, Context context) {
         context.getLogger().log("Input: " + request);
 
         String body = request.getBody();
+        context.getLogger().log("BIOGRAPHY_LAMBDA INSERT: " + "body >>>" + body);
         
         Gson gson = new Gson();
         Person productToAdd = gson.fromJson(body, Person.class);
@@ -23,10 +24,10 @@ implements RequestHandler<HttpRequest, HttpProductResponse> {
         productsList.add(productToAdd);
         
         if(super.updateAllPersons(productsList)) {
-    		return new HttpProductResponse();
+    		return new HttpPersonResponse();
     	}
         
-    	HttpProductResponse response =  new HttpProductResponse();
+    	HttpPersonResponse response =  new HttpPersonResponse();
     	response.setStatusCode("500");
     	return response;
 

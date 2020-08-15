@@ -8,10 +8,10 @@ import com.google.gson.Gson;
 
 public class BiographyUpdateFunction 
 extends InventoryS3Client
-implements RequestHandler<HttpRequest, HttpProductResponse> {
+implements RequestHandler<HttpRequest, HttpPersonResponse> {
 
     @Override
-    public HttpProductResponse handleRequest(HttpRequest request, Context context) {
+    public HttpPersonResponse handleRequest(HttpRequest request, Context context) {
         context.getLogger().log("Input: " + request);
 
         Gson gson = new Gson();
@@ -21,7 +21,7 @@ implements RequestHandler<HttpRequest, HttpProductResponse> {
         List<Person> personList = getAllPersonList();
         personList.removeIf(prod -> prod.getId() == productToAdd.getId());
         
-        HttpProductResponse httpResponse = new HttpProductResponse(productToAdd);
+        HttpPersonResponse httpResponse = new HttpPersonResponse(productToAdd);
         
         personList.add(productToAdd);
 		if(!super.updateAllPersons(personList)) {

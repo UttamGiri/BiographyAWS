@@ -17,25 +17,35 @@ import java.util.List;
 
 public class BiographyFindFunction 
 extends InventoryS3Client
-implements RequestHandler<HttpQuerystringRequest, HttpProductResponse> {
+implements RequestHandler<HttpQuerystringRequest, HttpPersonResponse> {
 
     @Override
-    public HttpProductResponse handleRequest(HttpQuerystringRequest request, Context context) {
-        context.getLogger().log("Input: " + request);
-        
+    public HttpPersonResponse handleRequest(HttpQuerystringRequest request, Context context) {
+    	 
+   
         String idAsString = (String)request.getQueryStringParameters().get("id");  
         
         if(idAsString.equalsIgnoreCase("all")) {  
         	Person[] persons = getAllPersons();
-        	HttpProductResponse response = new HttpProductResponse(persons);
+        	HttpPersonResponse response = new HttpPersonResponse(persons);
         	
     		return response;
         }
         Integer productId = Integer.parseInt(idAsString);  
         
         Person person = getPersonById(productId);
-            
-        return new HttpProductResponse(person);
+        
+        context.getLogger().log("BIOGRAPHY_LAMBDA: person name " + person.getName());
+
+        HttpPersonResponse httpProductResponse = new HttpPersonResponse(person);
+        
+        httpProductResponse.getHeaders().put("Access-Control-Allow-Origin", "*"); 
+        httpProductResponse.getHeaders().put("Access-Control-Allow-Headers", "Content-Type"); 
+        httpProductResponse.getHeaders().put("Access-Control-Allow-Methods", "GET"); 
+      
+        // cors header, you can add another header fields
+        
+        return httpProductResponse;
     }
 
     private Person getPersonById(int personId) {
